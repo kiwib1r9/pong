@@ -1,7 +1,9 @@
 --[[ bibliotecas ]]
 -- https://github.com/Ulydev/push/blob/master/push.lua
 push = require 'push'
-
+Class = require 'class'
+require 'Raquete'
+require 'Bola'
 
 --[[ definição da altura e largura da janela do jogo]]
 LARGURA_JANELA = 1280
@@ -27,24 +29,17 @@ function love.load()
     -- inicialização das variaveis das raquetes
     ALTURA_RAQUETE = 26
     LARGURA_RAQUETE = 5
+    AFASTAMENTO = 20
 
-    if estadoJogo == 'inicio' then
-        -- inicialização do placar
-        placar1 = 0
-        placar2 = 0
+    raqueteE = Raquete(AFASTAMENTO, ALTURA_VIRTUAL/2 - ALTURA_RAQUETE/2, LARGURA_RAQUETE, ALTURA_RAQUETE)
+    raqueteD = Raquete(LARGURA_VIRTUAL-(AFASTAMENTO+LARGURA_RAQUETE), ALTURA_VIRTUAL/2 - ALTURA_RAQUETE/2, LARGURA_RAQUETE, ALTURA_RAQUETE)
 
-        -- centraliza posição das raquetes
-        raqueteEY = ALTURA_VIRTUAL/2 - ALTURA_RAQUETE/2
-        raqueteDY = raqueteEY
+    -- inicialização das variaveis da bola
+    ALTURA_BOLA = 4
+    LARGURA_BOLA = 4
 
-        -- centraliza posição da bola
-        bolaX = LARGURA_VIRTUAL/2 - 2
-        bolaY =  ALTURA_VIRTUAL/2 - 2
+    bola = Bola(LARGURA_VIRTUAL/2 - LARGURA_BOLA/2, ALTURA_VIRTUAL/2 - ALTURA_BOLA/2, LARGURA_BOLA, ALTURA_BOLA)
 
-        -- escolhe angulo de lanamento
-        boladX = math.random(2) == 1 and 100 or -100
-        boladY = math.random(2) == 1 and 50 or -50
-    end
     -- setup da janela com utilização da biblioteca push
     push:setupScreen(LARGURA_VIRTUAL, ALTURA_VIRTUAL, LARGURA_JANELA, ALTURA_JANELA, {
         fullscreen = false,
@@ -72,39 +67,43 @@ end
 --[[ updates]]
 function love.update(dt)
 
+    raqueteE:update(dt)
+    raqueteD:update(dt)
+
     if estadoJogo == 'inicio' then
         -- inicialização do placar
         placar1 = 0
         placar2 = 0
 
         -- centraliza posição das raquetes
-        raqueteEY = ALTURA_VIRTUAL/2 - ALTURA_RAQUETE/2
-        raqueteDY = raqueteEY
+        raqueteE:reset()
+        raqueteD:reset()
 
         -- centraliza posição da bola
-        bolaX = LARGURA_VIRTUAL/2 - 2
-        bolaY =  ALTURA_VIRTUAL/2 - 2
+        bola:reset()
 
-        -- escolhe angulo de lanamento
-        boladX = math.random(2) == 1 and 100 or -100
-        boladY = math.random(2) == 1 and 50 or -50
 
     elseif estadoJogo == 'jogando' then 
+
         -- atualiza posição da bola 
-        bolaX = bolaX + boladX*dt
-        bolaY = bolaY + boladY*dt
+        bola:update(dt)
+
         -- movimentos jogador esquerda
         if love.keyboard.isDown('w') then
-            raqueteEY= math.max(0, raqueteEY - VELOCIDADE_RAQUETE*dt)
+            raqueteE.dy = -VELOCIDADE_RAQUETE
         elseif love.keyboard.isDown('s') then
-            raqueteEY= math.min(ALTURA_VIRTUAL-ALTURA_RAQUETE, raqueteEY + VELOCIDADE_RAQUETE*dt)
+            raqueteE.dy = VELOCIDADE_RAQUETE
+        else
+            raqueteE.dy = 0
         end
 
         -- movimentos jogador direita
         if love.keyboard.isDown('up') then
-            raqueteDY= math.max(0, raqueteDY - VELOCIDADE_RAQUETE*dt)
+            raqueteD.dy = -VELOCIDADE_RAQUETE
         elseif love.keyboard.isDown('down') then
-            raqueteDY= math.min(ALTURA_VIRTUAL-ALTURA_RAQUETE, raqueteDY + VELOCIDADE_RAQUETE*dt)
+            raqueteD.dy = VELOCIDADE_RAQUETE
+        else
+            raqueteD.dy = 0
         end
     end
 end
@@ -117,11 +116,12 @@ function love.draw()
     love.graphics.clear(164/255, 222/255, 191/255, 255/255)     -- background clear color
 
     -- bola
-    love.graphics.rectangle('fill', bolaX, bolaY, 4, 4 ) 
+    bola:render()
     -- raquete esquerda
-    love.graphics.rectangle('fill', 20, raqueteEY, LARGURA_RAQUETE, ALTURA_RAQUETE ) 
+    raqueteE:render() 
     -- raquete direita
-    love.graphics.rectangle('fill', LARGURA_VIRTUAL - 25, raqueteDY, LARGURA_RAQUETE, ALTURA_RAQUETE ) 
+    raqueteD:render()
+
     -- título
     love.graphics.setFont(fonteP)
     love.graphics.printf(
