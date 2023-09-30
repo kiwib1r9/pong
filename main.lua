@@ -41,6 +41,8 @@ function love.load()
     bola = Bola(LARGURA_VIRTUAL/2 - LARGURA_BOLA/2, ALTURA_VIRTUAL/2 - ALTURA_BOLA/2, LARGURA_BOLA, ALTURA_BOLA)
 
     -- setup da janela com utilização da biblioteca push
+    love.window.setTitle('Pong') -- titulo da janela
+
     push:setupScreen(LARGURA_VIRTUAL, ALTURA_VIRTUAL, LARGURA_JANELA, ALTURA_JANELA, {
         fullscreen = false,
         resizable = false,
@@ -122,6 +124,9 @@ function love.draw()
     -- raquete direita
     raqueteD:render()
 
+    -- fps
+    displayFPS()
+
     -- título
     love.graphics.setFont(fonteP)
     love.graphics.printf(
@@ -137,4 +142,8 @@ function love.draw()
     push:apply('end')           -- fim da aplicação de zoom
 end
 
-
+-- função para mostrar fps
+function displayFPS()
+    love.graphics.setFont(fonteP)
+    love.graphics.print('FPS: ' .. tostring(love.timer.getFPS()), 40, 20)
+end
