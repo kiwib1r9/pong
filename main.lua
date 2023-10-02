@@ -117,6 +117,27 @@ function love.draw()
     
     love.graphics.clear(164/255, 222/255, 191/255, 255/255)     -- background clear color
 
+    -- colisão check
+    if bola:colide(raqueteE) then
+        bola.dx = -bola.dx
+        bola.x = raqueteE.x + raqueteE.largura
+    end
+
+    if bola:colide(raqueteD) then
+        bola.dx = -bola.dx
+        bola.x = raqueteD.x - bola.largura 
+    end
+
+    if bola.y < 0 then
+        bola.dy = -bola.dy
+        bola.y = 0
+    end
+
+    if bola.y > ALTURA_VIRTUAL then
+        bola.dy = -bola.dy
+        bola.y = ALTURA_VIRTUAL - bola.altura
+    end
+
     -- bola
     bola:render()
     -- raquete esquerda

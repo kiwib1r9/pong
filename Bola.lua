@@ -20,6 +20,19 @@ function Bola:reset()
     self.dy = math.random(2) == 1 and 50 or -50
 end
 
+function Bola:colide(objeto)
+
+    if self.x > objeto.x + objeto.largura or objeto.x > self.x + self.largura then
+        return false
+    end
+
+    if self.y > objeto.y + objeto.altura or objeto.y > self.y + self.altura then
+        return false
+    end
+
+    return true
+
+end
 
 function Bola:update(dt)
     self.x = self.x + self.dx*dt
