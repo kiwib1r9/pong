@@ -34,6 +34,9 @@ function love.load()
     raqueteE = Raquete(AFASTAMENTO, ALTURA_VIRTUAL/2 - ALTURA_RAQUETE/2, LARGURA_RAQUETE, ALTURA_RAQUETE)
     raqueteD = Raquete(LARGURA_VIRTUAL-(AFASTAMENTO+LARGURA_RAQUETE), ALTURA_VIRTUAL/2 - ALTURA_RAQUETE/2, LARGURA_RAQUETE, ALTURA_RAQUETE)
 
+    pontosE = 0
+    pontosD = 0
+    
     -- inicialização das variaveis da bola
     ALTURA_BOLA = 4
     LARGURA_BOLA = 4
@@ -73,10 +76,7 @@ function love.update(dt)
     raqueteD:update(dt)
 
     if estadoJogo == 'inicio' then
-        -- inicialização do placar
-        placar1 = 0
-        placar2 = 0
-
+        
         -- centraliza posição das raquetes
         raqueteE:reset()
         raqueteD:reset()
@@ -87,6 +87,16 @@ function love.update(dt)
 
     elseif estadoJogo == 'jogando' then 
 
+        -- atualiza placar 
+        if bola.x <= 0 then
+            pontosE = pontosE + 1
+            estadoJogo = 'inicio'
+        end
+
+        if bola.x >= LARGURA_VIRTUAL - 4 then
+            pontosD = pontosD + 1
+            estadoJogo = 'inicio'
+        end
         -- atualiza posição da bola 
         bola:update(dt)
 
