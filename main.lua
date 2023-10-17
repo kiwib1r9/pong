@@ -12,7 +12,7 @@ ALTURA_JANELA = 720
 LARGURA_VIRTUAL = 432
 ALTURA_VIRTUAL = 243
 
-VELOCIDADE_RAQUETE = 200 -- 200 pixels por segundo
+VELOCIDADE_RAQUETE = 100 -- 100 pixels por segundo
 
 
 --[[ inicialização]]
@@ -34,14 +34,24 @@ function love.load()
     raqueteE = Raquete(AFASTAMENTO, ALTURA_VIRTUAL/2 - ALTURA_RAQUETE/2, LARGURA_RAQUETE, ALTURA_RAQUETE)
     raqueteD = Raquete(LARGURA_VIRTUAL-(AFASTAMENTO+LARGURA_RAQUETE), ALTURA_VIRTUAL/2 - ALTURA_RAQUETE/2, LARGURA_RAQUETE, ALTURA_RAQUETE)
 
+    -- inicialização da pontuação
     pontosE = 0
     pontosD = 0
+ 
+    -- variavel que aponta o jogador que esta servindo na rodada 
+    servidor = math.random(2) == 1 and 1 or 2
     
     -- inicialização das variaveis da bola
     ALTURA_BOLA = 4
     LARGURA_BOLA = 4
 
     bola = Bola(LARGURA_VIRTUAL/2 - LARGURA_BOLA/2, ALTURA_VIRTUAL/2 - ALTURA_BOLA/2, LARGURA_BOLA, ALTURA_BOLA)
+
+    if servidor == 1 then
+        bola.dx = VELOCIDADE_RAQUETE
+    else
+        bola.dx = -VELOCIDADE_RAQUETE
+    end
 
     -- setup da janela com utilização da biblioteca push
     love.window.setTitle('Pong') -- titulo da janela
@@ -61,9 +71,9 @@ function love.keypressed(key)
         love.event.quit()
     elseif key == 'enter' or key == 'return' then 
         if estadoJogo == 'inicio' then
+            estadoJogo = 'servindo'
+        elseif estadoJogo == 'servindo' then
             estadoJogo = 'jogando'
-        elseif estadoJogo == 'jogando' then
-            estadoJogo = 'inicio'
         end
     end
 end
@@ -81,21 +91,28 @@ function love.update(dt)
         raqueteE:reset()
         raqueteD:reset()
 
-        -- centraliza posição da bola
-        bola:reset()
 
-
+    elseif estadoJogo == 'servindo' then
+        
     elseif estadoJogo == 'jogando' then 
 
         -- atualiza placar 
         if bola.x <= 0 then
-            pontosE = pontosE + 1
-            estadoJogo = 'inicio'
+            pontosD = pontosD + 1
+            servidor = 1
+            -- centraliza posição da bola
+            bola:reset()
+            bola.dx = VELOCIDADE_RAQUETE
+            estadoJogo = 'servindo'
         end
 
         if bola.x >= LARGURA_VIRTUAL - 4 then
-            pontosD = pontosD + 1
-            estadoJogo = 'inicio'
+            pontosE = pontosE + 1
+            sevidor = 2
+            -- centraliza posição da bola
+            bola:reset()
+            bola.dx = -VELOCIDADE_RAQUETE
+            estadoJogo = 'servindo'
         end
         -- atualiza posição da bola 
         bola:update(dt)
@@ -160,16 +177,23 @@ function love.draw()
 
     -- título
     love.graphics.setFont(fonteP)
-    love.graphics.printf(
-        'Hello Pong!',          -- texto
-        0,                      -- x inicial
-        20,                     -- y inicial (subtraindo 6 pois a fonte padrão tem altura 12)
-        LARGURA_VIRTUAL,         -- parametro de alinhamento
-        'center')               -- tipo de alinhamento
+    if estadoJogo == 'inicio' then
+        love.graphics.printf(
+            'Hello Pong!',          -- texto
+            0,                      -- x inicial
+            20,                     -- y inicial (subtraindo 6 pois a fonte padrão tem altura 12)
+            LARGURA_VIRTUAL,         -- parametro de alinhamento
+            'center')               -- tipo de alinhamento
+        
+        love.graphics.printf('Press Enter to Play!', 0 , 40, LARGURA_VIRTUAL, 'center')
+    elseif estadoJogo == 'servindo' then
+        love.graphics.printf('Player' .. tostring(servidor) .. 's turn to Serve', 0 , 20, LARGURA_VIRTUAL, 'center')
+        love.graphics.printf('Press Enter to Serve!', 0 , 40, LARGURA_VIRTUAL, 'center')
+    end
     -- placar
     love.graphics.setFont(fonteG)
-    love.graphics.print(placar1, LARGURA_VIRTUAL/2 - 50, ALTURA_VIRTUAL/3)
-    love.graphics.print(placar2, LARGURA_VIRTUAL/2 + 30, ALTURA_VIRTUAL/3)
+    love.graphics.print(pontosE, LARGURA_VIRTUAL/2 - 50, ALTURA_VIRTUAL/3)
+    love.graphics.print(pontosD, LARGURA_VIRTUAL/2 + 30, ALTURA_VIRTUAL/3)
     push:apply('end')           -- fim da aplicação de zoom
 end
 
