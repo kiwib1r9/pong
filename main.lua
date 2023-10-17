@@ -58,7 +58,7 @@ function love.load()
 
     push:setupScreen(LARGURA_VIRTUAL, ALTURA_VIRTUAL, LARGURA_JANELA, ALTURA_JANELA, {
         fullscreen = false,
-        resizable = false,
+        resizable = true,
         vsync = true -- sincronizado com a taxa de refresh do monitor
     } -- tabela de parametros
 )
@@ -135,6 +135,10 @@ function love.update(dt)
             raqueteD.dy = 0
         end
     end
+end
+
+function love.resize(w,h)
+    push:resize(w,h)
 end
 
 
